@@ -14,9 +14,10 @@ int pthread_getattr_np(pthread_t t, pthread_attr_t *a)
 	} else {
 		char *p = (void *)libc.auxv;
 		size_t l = PAGE_SIZE;
+		unsigned char c;
 		p += -(uintptr_t)p & PAGE_SIZE-1;
 		a->_a_stackaddr = (uintptr_t)p;
-		while (mremap(p-l-PAGE_SIZE, PAGE_SIZE, 2*PAGE_SIZE, 0)==MAP_FAILED && errno==ENOMEM)
+		while (mincore(p-l-PAGE_SIZE, PAGE_SIZE, &c) == 0)
 			l += PAGE_SIZE;
 		a->_a_stacksize = l;
 	}
